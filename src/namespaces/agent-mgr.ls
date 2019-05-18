@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018 T2T Inc. All rights reserved
+# Copyright (c) 2019 T2T Inc. All rights reserved
 # https://www.t2t.io
 # https://tic-tac-toe.io
 # Taipei, Taiwan
@@ -324,7 +324,6 @@ class AgentManager
     INFO "environment => #{PRETTIZE_KVS environment}"
     INFO "running with Protocol #{protocol_version.yellow} on #{instance_id.cyan} with socket.io #{socketio_version.red}"
     INFO "cc => #{JSON.stringify cc}"
-    web.use-ws \tty, (s) -> return self.add-ws s
     return done!
 
   update-stats: ->
@@ -353,7 +352,8 @@ class AgentManager
     return @socket_instance_map[id]
 
   register-agent: (sw, reg-data, cc, done) ->
-    {socket_metadata_map, socket_instance_map, app, sockets} = self = @
+    {socket_metadata_map, socket_instance_map, app, sockets, helpers} = self = @
+    {PRETTIZE_KVS} = helpers
     {id, system} = reg-data
     sm = socket_metadata_map[id]
     swo = socket_instance_map[id]
@@ -371,6 +371,7 @@ class AgentManager
       json = JSON.parse body
       {data} = json
       geoip = {ip, data}
+      INFO "#{prefix}: geoip => #{PRETTIZE_KVS geoip}"
     sm.at-connected system, cc, geoip
     socket_metadata_map[id] = sm
     socket_instance_map[id] = sw
@@ -452,6 +453,9 @@ module.exports = exports =
     return <[web]>
 
   init: (p, done) ->
+    {app} = p
+    {web} = app
+    web.use-ws \tty, (s) -> return p.add-ws s
     return p.init done
 
   fini: (p, done) ->
