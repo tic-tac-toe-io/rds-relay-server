@@ -89,10 +89,6 @@ class TerminalManager
     sockets.splice idx, 1 unless idx is -1
     INFO "#{prefix} disconnected. session lifetime => #{duration}s, removed from pool[#{idx}]."
 
-  authenticate: (username, password, done) ->
-    INFO "authentication: #{username} with #{password}"
-    return done null, yes
-
 
 module.exports = exports =
   name: \terminal-mgr
@@ -100,14 +96,15 @@ module.exports = exports =
   attach: (name, environment, configs, helpers) ->
     app = @
     app[name] = tm = new TerminalManager environment, configs, helpers, app
+    module.configs = configs
     return <[web agent-mgr]>
 
   init: (p, done) ->
     {app} = p
     {web} = app
-    term-callback = (s, username) -> return p.add-ws s, username
-    term-auth = (s, username, password, cb) -> return p.authenticate username, password, cb
-    web.use-ws \terminal, term-callback, term-auth
+    {configs} = module
+    handler = (s, username) -> return p.add-ws s, username
+    web.use-ws \terminal, handler, configs.authentication
     return p.init app['agent-mgr'], done
 
   fini: (p, done) ->
