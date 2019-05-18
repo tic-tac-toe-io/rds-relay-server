@@ -91,7 +91,7 @@ class TerminalManager
 
 
 module.exports = exports =
-  name: \terminal-mgr
+  name: \terminal
 
   attach: (name, environment, configs, helpers) ->
     app = @
@@ -103,6 +103,7 @@ module.exports = exports =
     {app} = p
     {web} = app
     {configs} = module
+    INFO "configs => #{JSON.stringify configs}"
     handler = (s, username) -> return p.add-ws s, username
     web.use-ws \terminal, handler, configs.authentication
     return p.init app['agent-mgr'], done

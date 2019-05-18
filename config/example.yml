@@ -30,7 +30,7 @@ agent-mgr:
 #
 # Terminal manager.
 #
-terminal-mgr:
+terminal:
   #
   # There are 2 authentication methods.
   #
