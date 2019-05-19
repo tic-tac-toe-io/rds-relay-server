@@ -444,7 +444,7 @@ class DummyIWC
 
 
 module.exports = exports =
-  name: \agent-mgr
+  name: \agent-manager
 
   attach: (name, environment, configs, helpers) ->
     module.iwc = new DummyIWC {}
@@ -453,9 +453,6 @@ module.exports = exports =
     return <[web]>
 
   init: (p, done) ->
-    {app} = p
-    {web} = app
-    web.use-ws \tty, (s) -> return p.add-ws s
     return p.init done
 
   fini: (p, done) ->

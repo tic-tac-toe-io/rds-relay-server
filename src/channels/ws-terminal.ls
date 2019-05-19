@@ -7,16 +7,18 @@
 require! <[lodash]>
 {DBG, ERR, WARN, INFO} = global.ys.services.get_module_logger __filename
 
+const NAMESPACE = \terminal
+
+
 class SocketWrapper
-  (@ws, @user, @index, @manager, @agent-mgr) ->
+  (@ws, @prefix, @user, @index, @manager, @agent-manager) ->
     self = @
-    self.prefix = "terms [#{index.gray}]"
     self.connected-at = new Date!
     ws.on \disconnect, -> return self.on-disconnct!
     ws.on \command, (buf) -> return self.on-command "#{buf}"
 
   on-disconnct: ->
-    @manager.remove-sw @
+    @manager.remove @
     return
 
   err-disconnect: (msg) ->
@@ -40,10 +42,10 @@ class SocketWrapper
     return WARN "#{prefix} unexpected command request: #{cmd.type.red} (#{text.gray})"
 
   on-tty-request: (cmd) ->
-    {ws, prefix, user, agent-mgr} = self = @
+    {ws, prefix, user, agent-manager} = self = @
     {type, id, params} = cmd
-    agent = agent-mgr.find-agent id
-    INFO "#{prefix}: on-tty-request => #{JSON.stringify cmd}"
+    agent = agent-manager.find-agent id
+    INFO "#{prefix}.#{user}: on-tty-request => #{JSON.stringify cmd}"
     return ws.emit \err, "no such #{id}" unless agent?
     return ws.emit \err, "#{id} is already paired with another terminal" unless agent.allow-tty!
     self.prefix = prefix = "#{prefix}:#{id.yellow}:#{user.magenta}"
@@ -51,9 +53,9 @@ class SocketWrapper
     return agent.request-tty @, ws, params
 
   on-tty-control: (cmd) ->
-    {ws, prefix, agent-mgr} = @
+    {ws, prefix, agent-manager} = @
     {type, id, params} = cmd
-    agent = agent-mgr.find-agent id
+    agent = agent-manager.find-agent id
     INFO "#{prefix} on-tty-control: #{JSON.stringify cmd}"
     return ws.emit \err, "no such #{id}" unless agent?
     return ws.emit \err, "unexpected ctrl-tty before paired" unless agent.allow-ctrl!
@@ -66,21 +68,29 @@ class TerminalManager
     @total = 0
     return
 
-  init: (@agent-mgr, done) ->
+  init: (@agent-manager, done) ->
     return done!
 
   fini: (done) ->
     return done!
 
-  add-ws: (s, user) ->
-    {total, sockets, agent-mgr} = self = @
+  add: (s, user) ->
+    {total, sockets, agent-manager} = self = @
     self.total = total + 1
+    xri = s.request.headers['x-real-ip']
+    xff = s.request.headers['x-forwarded-for']
+    ua = s.request.headers['user-agent']
+    ua = \unknown unless ua?
+    ip = s.handshake.address
+    ip = xri if xri?
+    ip = xff if xff?
     index = lodash.padStart self.total, 8, '0'
-    INFO "terms [#{index}]: incoming connection ..."
-    sw = new SocketWrapper s, user, index, @, agent-mgr
+    prefix = "terms [#{index.gray}]"
+    INFO "#{prefix}.#{user}: incoming connection (from #{ip.green}, agent => #{ua.magenta})"
+    sw = new SocketWrapper s, prefix, user, index, @, agent-manager
     sockets.push sw
 
-  remove-sw: (sw) ->
+  remove: (sw) ->
     {sockets} = self = @
     {prefix, connected-at} = sw
     now = new Date!
@@ -91,22 +101,22 @@ class TerminalManager
 
 
 module.exports = exports =
-  name: \terminal
+  name: "ws-#{NAMESPACE}"
 
   attach: (name, environment, configs, helpers) ->
     app = @
     app[name] = tm = new TerminalManager environment, configs, helpers, app
     module.configs = configs
-    return <[web agent-mgr]>
+    return <[web agent-manager]>
 
   init: (p, done) ->
     {app} = p
     {web} = app
     {configs} = module
     INFO "configs => #{JSON.stringify configs}"
-    handler = (s, username) -> return p.add-ws s, username
-    web.use-ws \terminal, handler, configs.authentication
-    return p.init app['agent-mgr'], done
+    handler = (s, username) -> return p.add s, username
+    web.use-ws NAMESPACE, handler, configs.authentication
+    return p.init app['agent-manager'], done
 
   fini: (p, done) ->
     return p.fini done!

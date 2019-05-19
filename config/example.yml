@@ -23,16 +23,23 @@ logger:
 #
 # Agent manager.
 #
-agent-mgr:
+agent-manager:
   name: wstty.tic-tac-toe.io
 
 
 #
-# Terminal manager.
+# Channel: `tty`, socket.io namespace for connections from agents on the boards/workstations.
 #
-terminal:
+ws-tty:
+  verbose: no
+
+
+#
+# Channel: `terminal`, socket.io namespace for connections from terminals in web browsers.
+#
+ws-terminal:
   #
-  # There are 2 authentication methods.
+  # There are 2 authentication methods for socket.io namespace.
   #
   #   1. user objects as dictionary
   #   2. external javascript module as authentication callback
@@ -61,7 +68,43 @@ terminal:
   #     authentication: /tmp/aa.js
   #
   authentication:
-    test1: test1
-    test2: test2
+    test1: token1
+    test2: token2
 
 
+#
+# Channel: `system`, socket.io namespace for connections from 3rd-party cloud apps.
+#
+ws-system:
+  #
+  # There are 2 authentication methods for socket.io namespace.
+  #
+  #   1. user objects as dictionary
+  #   2. external javascript module as authentication callback
+  #
+  # For `1`, the `authentication` is configured as a JSON object, with
+  # username as key while password as value. Taking following YAML config
+  # as example, there are 2 users `test1` and `test2`, and their passwords
+  # are `hello1` and `hello2` separately:
+  #
+  #     authentication:
+  #       test1: hello1
+  #       test2: hello2
+  #
+  # For `2`, the `authentication` is configured to the full path of a
+  # javascript module that will be loaded to verify username and password.
+  # It's expected that javascript module exports a function as below:
+  #
+  #     module.exports = exports = function(socket, username, password, done) {
+  #       return done(null, true);
+  #     }
+  #
+  # The callback function `done` has 2 parameters. 1st parameter is the error
+  # object, and 2nd parameter is a boolean value to indicate the user is
+  # authenticated or not. Here is an example:
+  #
+  #     authentication: /tmp/aa.js
+  #
+  authentication:
+    sys1: token1
+    sys2: token2
