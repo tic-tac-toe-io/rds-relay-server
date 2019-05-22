@@ -114,7 +114,7 @@ module.exports = exports =
     {web, auth} = app
     {configs} = module
     INFO "configs => #{JSON.stringify configs}"
-    authenticator = auth.resolve-authenticator configs.authentication
+    authenticator = auth.resolve-socketio configs.authentication
     handler = (s, username) -> return p.add s, username
     web.use-ws NAMESPACE, handler, authenticator
     return p.init app['agent-manager'], done

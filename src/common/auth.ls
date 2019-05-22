@@ -24,7 +24,21 @@ class AuthManager
   fini: (done) ->
     return done!
 
-  resolve-authenticator: (uri) ->
+  generate-pasport-http-auth: (uri) ->
+    {userdb} = self = @
+    {protocol, hostname, pathname} = tokens = url.parse uri
+    return null unless protocol is \userdb:
+    users = userdb[hostname]
+    WARN "no such user group #{hostname.yellow}" unless users?
+    return null unless users?
+    f = (username, password, done) ->
+      u = users[username]
+      return done null, no unless u?
+      return done null, no unless u is password
+      return done null, {username}
+    return f
+
+  resolve-socketio: (uri) ->
     {userdb} = self = @
     {protocol, hostname, pathname} = tokens = url.parse uri
     return userdb[hostname] if protocol is \userdb:

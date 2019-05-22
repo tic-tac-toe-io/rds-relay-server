@@ -97,7 +97,7 @@ module.exports = exports =
   init: (p, done) ->
     {app} = p
     {web, auth} = app
-    authenticator = auth.resolve-authenticator p.configs.authentication
+    authenticator = auth.resolve-socketio p.configs.authentication
     handler = (s, username) -> return p.add-ws s, username
     web.use-ws NAMESPACE, handler, authenticator
     return p.init app['agent-manager'], done
