@@ -46,10 +46,14 @@ ys.bootstrap(opts, (berr, logger, master=null, web=null) => {
         /**
          * Configure master app (load-balancer) here.
          */
+        master.addPlugin(require('./src/common/auth'));
         master.addPlugin(require('./src/agent/agent-manager'));
-        master.addPlugin(require('./src/channels/ws-tty'));      // connections from agent on devices/workstations
-        master.addPlugin(require('./src/channels/ws-terminal')); // connections from web terminals
-        master.addPlugin(require('./src/channels/ws-system'));   // connections from other cloud apps
+        master.addPlugin(require('./src/services/http-by-server')); // http service
+        master.addPlugin(require('./src/channels/ws-tty'));         // connections from agent on devices/workstations
+        master.addPlugin(require('./src/channels/ws-terminal'));    // connections from web terminals
+        master.addPlugin(require('./src/channels/ws-system'));      // connections from other cloud apps
+        master.addPlugin(require('./src/routes/webapi-agent'));     // webapis `/api/v1/a`
+
         /**
          * Start service in the process of master app.
          */

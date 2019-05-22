@@ -107,15 +107,16 @@ module.exports = exports =
     app = @
     app[name] = tm = new TerminalManager environment, configs, helpers, app
     module.configs = configs
-    return <[web agent-manager]>
+    return <[web auth agent-manager]>
 
   init: (p, done) ->
     {app} = p
-    {web} = app
+    {web, auth} = app
     {configs} = module
     INFO "configs => #{JSON.stringify configs}"
+    authenticator = auth.resolve-authenticator configs.authentication
     handler = (s, username) -> return p.add s, username
-    web.use-ws NAMESPACE, handler, configs.authentication
+    web.use-ws NAMESPACE, handler, authenticator
     return p.init app['agent-manager'], done
 
   fini: (p, done) ->

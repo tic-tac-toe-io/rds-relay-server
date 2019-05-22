@@ -19,6 +19,18 @@ logger:
     totalFiles: 60    # Keep 60 days (2 months) of log files.
 
 
+#
+# Builtin Authentication
+#
+auth:
+  userdb:
+    agent:
+      test1: token1
+      test2: token2
+    system:
+      sys1: token1
+      sys2: token2
+
 
 #
 # Agent manager.
@@ -41,21 +53,32 @@ ws-terminal:
   #
   # There are 2 authentication methods for socket.io namespace.
   #
-  #   1. user objects as dictionary
+  #   1. userdb from auth module.
   #   2. external javascript module as authentication callback
   #
-  # For `1`, the `authentication` is configured as a JSON object, with
-  # username as key while password as value. Taking following YAML config
-  # as example, there are 2 users `test1` and `test2`, and their passwords
-  # are `hello1` and `hello2` separately:
+  # For `1`, the `authentication` is configured as an URL with scheme `userdb`
+  # and hostname that indicates the group of users to be used. For example,
+  # when you configure `auth` module as below:
   #
-  #     authentication:
-  #       test1: hello1
-  #       test2: hello2
+  #   auth:
+  #     userdb:
+  #       agent:
+  #         test1: token1
+  #         test2: token2
+  #        xxx:
+  #         abc: def
+  #         xyz: www
   #
-  # For `2`, the `authentication` is configured to the full path of a
-  # javascript module that will be loaded to verify username and password.
-  # It's expected that javascript module exports a function as below:
+  # And configure the authentication as `userdb://xxx`, then, it indicates
+  # to use the 2 users `abc` and `xyz` in above configurations.
+  #
+  #   ws-terminal:
+  #     authentication: userdb://xxx
+  #
+  # For `2`, the `authentication` is configured to file scheme URL with
+  # the full path of a javascript module that will be loaded to verify
+  # username and password. It's expected that javascript module exports a
+  # function as below:
   #
   #     module.exports = exports = function(socket, username, password, done) {
   #       return done(null, true);
@@ -63,13 +86,12 @@ ws-terminal:
   #
   # The callback function `done` has 2 parameters. 1st parameter is the error
   # object, and 2nd parameter is a boolean value to indicate the user is
-  # authenticated or not. Here is an example:
+  # authenticated or not. Please note, the host of the given URL shall be
+  # empty, and here is an example:
   #
-  #     authentication: /tmp/aa.js
+  #     authentication: file:///tmp/aa.js
   #
-  authentication:
-    test1: token1
-    test2: token2
+  authentication: userdb://agent
 
 
 #
@@ -79,21 +101,32 @@ ws-system:
   #
   # There are 2 authentication methods for socket.io namespace.
   #
-  #   1. user objects as dictionary
+  #   1. userdb from auth module.
   #   2. external javascript module as authentication callback
   #
-  # For `1`, the `authentication` is configured as a JSON object, with
-  # username as key while password as value. Taking following YAML config
-  # as example, there are 2 users `test1` and `test2`, and their passwords
-  # are `hello1` and `hello2` separately:
+  # For `1`, the `authentication` is configured as an URL with scheme `userdb`
+  # and hostname that indicates the group of users to be used. For example,
+  # when you configure `auth` module as below:
   #
-  #     authentication:
-  #       test1: hello1
-  #       test2: hello2
+  #   auth:
+  #     userdb:
+  #       agent:
+  #         test1: token1
+  #         test2: token2
+  #        xxx:
+  #         abc: def
+  #         xyz: www
   #
-  # For `2`, the `authentication` is configured to the full path of a
-  # javascript module that will be loaded to verify username and password.
-  # It's expected that javascript module exports a function as below:
+  # And configure the authentication as `userdb://xxx`, then, it indicates
+  # to use the 2 users `abc` and `xyz` in above configurations.
+  #
+  #   ws-terminal:
+  #     authentication: userdb://xxx
+  #
+  # For `2`, the `authentication` is configured to file scheme URL with
+  # the full path of a javascript module that will be loaded to verify
+  # username and password. It's expected that javascript module exports a
+  # function as below:
   #
   #     module.exports = exports = function(socket, username, password, done) {
   #       return done(null, true);
@@ -101,10 +134,35 @@ ws-system:
   #
   # The callback function `done` has 2 parameters. 1st parameter is the error
   # object, and 2nd parameter is a boolean value to indicate the user is
-  # authenticated or not. Here is an example:
+  # authenticated or not. Please note, the host of the given URL shall be
+  # empty, and here is an example:
   #
-  #     authentication: /tmp/aa.js
+  #     authentication: file:///tmp/aa.js
   #
-  authentication:
-    sys1: token1
-    sys2: token2
+  authentication: userdb://system
+
+
+
+webapi-agent:
+  enabled: true
+  authentication: userdb://agent
+
+
+http-by-server:
+  v1:
+    timeout: 180 # seconds
+
+
+bash-by-server:
+  v1:
+    timeout: 180 # seconds
+    configs:
+      uuid: true
+    parameters:
+      command: null
+      args: []
+      options:
+        cwd: /tmp
+        env: {}
+        shell: true
+

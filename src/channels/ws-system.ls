@@ -46,7 +46,6 @@ class SystemManager
     self = @
     self.sockets = []
     self.counter = 0
-    self.authentication = configs.authentication
     app.on \agent-connected, -> return self.at-agent-connected.apply self, arguments
     app.on \agent-disconnected, -> return self.at-agent-disconnected.apply self, arguments
     return
@@ -93,13 +92,14 @@ module.exports = exports =
   attach: (name, environment, configs, helpers) ->
     app = @
     app[name] = tm = new SystemManager environment, configs, helpers, app
-    return <[web agent-manager]>
+    return <[web auth agent-manager]>
 
   init: (p, done) ->
     {app} = p
-    {web} = app
+    {web, auth} = app
+    authenticator = auth.resolve-authenticator p.configs.authentication
     handler = (s, username) -> return p.add-ws s, username
-    web.use-ws NAMESPACE, handler, p.authentication
+    web.use-ws NAMESPACE, handler, authenticator
     return p.init app['agent-manager'], done
 
   fini: (p, done) ->
