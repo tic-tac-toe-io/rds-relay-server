@@ -48,8 +48,9 @@ ys.bootstrap(opts, (berr, logger, master=null, web=null) => {
          */
         master.addPlugin(require('./src/common/auth'));
         master.addPlugin(require('./src/agent/agent-manager'));
-        master.addPlugin(require('./src/services/http-by-server')); // http service
         master.addPlugin(require('./src/services/bash-by-server')); // bash service
+        master.addPlugin(require('./src/services/http-by-server')); // http service
+        master.addPlugin(require('./src/services/file-mgr'));       // filesystem service
         master.addPlugin(require('./src/channels/ws-tty'));         // connections from agent on devices/workstations
         master.addPlugin(require('./src/channels/ws-terminal'));    // connections from web terminals
         master.addPlugin(require('./src/channels/ws-system'));      // connections from other cloud apps

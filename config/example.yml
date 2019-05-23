@@ -166,3 +166,9 @@ bash-by-server:
         env: {}
         shell: true
 
+
+file-mgr:
+  v1:
+    timeout: 180 # seconds
+    configs:
+      uuid: true

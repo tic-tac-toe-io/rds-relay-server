@@ -4,15 +4,15 @@
 # https://tic-tac-toe.io
 # Taipei, Taiwan
 #
-require! <[lodash semver]>
+require! <[lodash semver request]>
 {DBG, ERR, WARN, INFO} = global.ys.services.get_module_logger __filename
 uuid_v4 = require \uuid/v4
 PROTOCOL = require \../common/protocol
-{AGENT_EVENT_BASH_BY_SERVER} = PROTOCOL.events
-{PROGRESS_EVENT_ACKED, PROGRESS_EVENT_INDICATED, BASH_INTERRUPT_ERROR} = PROTOCOL.constants
+{AGENT_EVENT_FILE_MANAGER} = PROTOCOL.events
+{PROGRESS_EVENT_ACKED, PROGRESS_EVENT_INDICATED, FILEMGR_INTERRUPT_ERROR} = PROTOCOL.constants
 
 const DEFAULT_TIMEOUT = 180s
-const SERVICE_NAME = \bash-by-server
+const SERVICE_NAME = \file-mgr
 
 const DEFAULT_CONFIGS =
   v1:
@@ -28,18 +28,14 @@ const DEFAULT_CONFIGS =
         shell: yes
 
 
-class BashByServerV1Task
+class FileMgrV1Task
   (@manager, @agent, @user, @id, @timeout, @parameters, @configs, @callback, @done) ->
-    @timeout = DEFAULT_TIMEOUT unless @timeout?
-    @opts = {timeout}
-    {operation} = configs
-    @operation = operation
-    @operation = \default unless @operation?
     @start-time = (new Date!) - 0
     u = uuid_v4! .to-upper-case!
     u = u.split '-'
     u = u.pop!
     @request-id = if configs.uuid then "#{id}_#{u}_T#{@start-time}" else "#{id}_T#{@start-time}"
+    @opts = {timeout}
     @running = no
     @prefix = "#{agent.prefix} #{@request-id.gray}"
     return
@@ -48,7 +44,7 @@ class BashByServerV1Task
     {agent, request-id, parameters, configs, callback, prefix} = self = @
     request-version = \v1
     self.running = yes
-    agent.emit AGENT_EVENT_BASH_BY_SERVER, request-version, request-id, parameters, configs, callback
+    agent.emit AGENT_EVENT_FILE_MANAGER, request-version, request-id, parameters, configs, callback
     return INFO "#{prefix}: <= #{JSON.stringify parameters} <= #{callback}"
 
   consolidate-report: (end) ->
@@ -57,6 +53,7 @@ class BashByServerV1Task
     {username} = user
     self.running = no
     id = @request-id
+    {profile} = agent.metadata
     agent = agent.id
     started = start-time
     acked = acked-time
@@ -67,17 +64,19 @@ class BashByServerV1Task
     durations = {ack, complete}
     performance = {timestamps, durations}
     request = {id, parameters, configs, callback}
-    INFO "BashByServerV1: #{username}, #{id}, #{ack}, #{complete}, #{end}"
+    INFO "FileMgrV1: #{username}, #{id}, #{ack}, #{complete}, #{end}"
     ack = "#{ack}ms"
     complete = "#{complete}ms"
     INFO "#{prefix}: #{end}, #{ack.yellow}, #{complete.green}, #{method}, #{username}"
     manager.remove-task id
-    return {agent, request, performance}
+    return {agent, profile, request, performance}
 
   response-result: (result) ->
     {done} = self = @
     data = self.consolidate-report \result
     data['result'] = result
+    # [todo] filemgr.readdir => transform `dirent` array to object:
+    #        is_block_device, is_character_device, is_directory, is_fifo, is_file, is_socket, is_symbolic_link
     return done null, data
 
   response-error: (error) ->
@@ -92,10 +91,10 @@ class BashByServerV1Task
     {done, opts} = self = @
     {constants} = PROTOCOL
     data = self.consolidate-report \timeout
-    name = \BASH_BY_SERVER_ERR_AGENT_TIMEOUT
+    name = \FILEMGR_ERR_AGENT_TIMEOUT
     code = constants[name]
     code = -1 unless code?
-    message = "bash request takes more than #{opts.timeout}s"
+    message = "filemgr request takes more than #{opts.timeout}s"
     data['error'] = {name, code, message}
     return done [\remote_agent_error, message, data]
 
@@ -105,6 +104,7 @@ class BashByServerV1Task
   at-progress-indicated: (percentage, args, agent) ->
     {prefix, id, request-id, operation, callback} = self = @
     {profile} = agent.metadata
+    return unless callback?
     uri = callback
     method = \POST
     task = request-id
@@ -120,11 +120,11 @@ class BashByServerV1Task
     return ERR "#{prefix}: failed to notify progress indication to #{uri} because of non-200 response: #{rsp.statusCode}(#{rsp.statusMessage.red})" unless rsp.statusCode is 200
     return INFO "#{prefix}: informed #{uri} with percentage(#{percentage}) and args => #{(JSON.stringify args).gray}"
 
-  process: (progress, result, error, agent) ->
+  process: (progress, result, error) ->
     {agent, request-id, prefix} = self = @
-    DBG "#{prefix}: -- progress: #{JSON.stringify progress}"
-    DBG "#{prefix}: -- result: #{JSON.stringify result}"
-    DBG "#{prefix}: -- error: #{JSON.stringify error}"
+    INFO "#{prefix}: -- progress: #{JSON.stringify progress}"
+    INFO "#{prefix}: -- result: #{JSON.stringify result}"
+    INFO "#{prefix}: -- error: #{JSON.stringify error}"
     return @.response-result result if result?
     return @.response-error error if error?
     return WARN "#{prefix}: process all null variables" unless progress?
@@ -144,8 +144,8 @@ class BashByServerV1Task
     {agent} = self = @
     {instance_id} = agent.cc
     error =
-      code: BASH_INTERRUPT_ERROR
-      name: \BASH_INTERRUPT_ERROR
+      code: FILEMGR_INTERRUPT_ERROR
+      name: \FILEMGR_INTERRUPT_ERROR
       err:
         instance_id: instance_id
         new_instance_id: new_instance_id
@@ -174,18 +174,17 @@ class ServiceManager
   fini: (done) ->
     return done!
 
-  perform: (user, id, operation=\default, parameters={}, configs={}, hook=null, done=null) ->
+  perform: (user, id, parameters, configs={}, hook=null, done=null) ->
     {agents, tasks, configs} = self = @
     {timeout} = configs.v1
     a = agents[id]
     return [[\resource_unavailable, "#{id} does not exist"]] unless a?
     {protocol_version} = a.cc
-    return [[\resource_not_implemented, "#{id}(v#{protocol_version} <= 0.3.0) does not support bash api"]] if semver.lt protocol_version, \0.3.0
-    configs = lodash.merge {}, configs.v1.configs, configs
-    configs['operation'] = operation
-    parameters = lodash.merge {}, configs.v1.parameters, parameters
+    return [[\resource_not_implemented, "#{id}(v#{protocol_version} <= 0.4.0) does not support filemgr api"]] if semver.lt protocol_version, \0.4.0
+    configs = lodash.merge {}, configs.configs, configs
+    parameters = lodash.merge {}, configs.parameters, parameters
     INFO "timeout: #{timeout}"
-    {request-id} = t = new BashByServerV1Task self, a, user, id, timeout, parameters, configs, hook, done
+    {request-id} = t = new FileMgrV1Task self, a, user, id, timeout, parameters, configs, hook, done
     tasks[request-id] = t
     t.start!
     return [null, request-id]
@@ -194,21 +193,23 @@ class ServiceManager
     {agents, tasks} = self = @
     agents[id] = a = sw
     {instance_id} = a.cc
-    sw.on AGENT_EVENT_BASH_BY_SERVER, SERVICE_NAME, (id, p, res, err) -> return self.at-agent-data sw, id, p, res, err
+    sw.on AGENT_EVENT_FILE_MANAGER, SERVICE_NAME, (id, p, res, err) -> return self.at-agent-data sw, id, p, res, err
     xs = [ t for rid, t of tasks when a.id is t.agent.id ]
     ys = [ x for x in xs when x.agent.cc.instance_id isnt instance_id ]
     INFO "#{sw.prefix} connected, #{xs.length} pending tasks exist... (#{ys.length} tasks to be dropped)"
+    # INFO "#{sw.prefix} connected, sm => #{JSON.stringify sm.to-json!}"
+    # INFO "#{sw.prefix} connected, sw.metadata => #{JSON.stringify sw.metadata.to-json!}"
     [ (y.at-agent-restart instance_id) for y in ys ]
 
   at-agent-disconnected: (id) ->
     {agents, tasks} = self = @
     delete agents[id]
 
-  at-agent-data: (agent, request-id, progress, result, error) ->
+  at-agent-data: (sw, request-id, progress, result, error) ->
     {tasks} = self = @
     t = tasks[request-id]
-    return ERR "no such #{request-id} in tasks, from agent #{agent.prefix}" unless t?
-    return t.process progress, result, error, agent
+    return ERR "no such #{request-id} in tasks, from agent #{sw.prefix}" unless t?
+    return t.process progress, result, error
 
   at-timeout: ->
     {tasks} = self = @
@@ -236,3 +237,4 @@ module.exports = exports =
 
   fini: (p, done) ->
     return p.fini done!
+

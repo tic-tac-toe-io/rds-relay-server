@@ -19,7 +19,7 @@ module.exports = exports =
   attach: (name, environment, configs, helpers) ->
     INFO "configs => #{JSON.stringify configs}"
     module.configs = lodash.merge {}, DEFAULT_SETTINGS, configs
-    return <[web auth agent-manager http-by-server bash-by-server]>
+    return <[web auth agent-manager http-by-server bash-by-server file-mgr]>
 
   init: (p, done) ->
     {configs} = module
@@ -29,6 +29,7 @@ module.exports = exports =
     agent-manager = app['agent-manager']
     http-by-server = app['http-by-server']
     bash-by-server = app['bash-by-server']
+    file-mgr = app['file-mgr']
     {socket_metadata_map, socket_instance_map} = agent-manager
 
     REMOTE_HTTP_V1 = (req, res, id, uri, query=null, json=yes, configs={}) ->
@@ -103,6 +104,116 @@ module.exports = exports =
       options = {env, shell}
       return REMOTE_BASH_V1 req, res, id, \default, {command, args, options}, {}
 
+    a.get '/agents/:id/filemgr/readdir', authenticate, (req, res) ->
+      {query, params, user} = req
+      {field} = query
+      {id} = params
+      uuid = yes
+      operation = \readdir
+      configs = {uuid}
+      parameters = {operation, field}
+      return REST_ERR req, res, \missing_field, "path in query-string is not specified" unless query.path?
+      parameters['path'] = query.path
+      field = \compact unless field?
+      return REST_ERR req, res, \missing_field, "field (#{field}) in query-string is unsupported" unless field in <[full compact]>
+      [err] = file-mgr.perform user, id, parameters, configs, null, (err, results) ->
+        return REST_ERR req, res, err[0], err[1] if err?
+        return REST_DAT req, res, results
+      return REST_ERR req, res, err[0], err[1] if err?
+
+    a.get '/agents/:id/filemgr/readFile', authenticate, (req, res) ->
+      {query, params, user} = req
+      {format} = query
+      {id} = params
+      uuid = yes
+      operation = \readFile
+      format = \raw unless format?
+      configs = {uuid}
+      parameters = {operation}
+      INFO "#{req.path}: query => #{JSON.stringify query}"
+      INFO "#{req.path}: params => #{JSON.stringify params}"
+      return REST_ERR req, res, \missing_field, "path in query-string is not specified" unless query.path?
+      parameters['path'] = query.path
+      return REST_ERR req, res, \missing_field, "format (#{format}) in query-string is unsupported" unless format in <[raw text lines json]>
+      parameters['format'] = format
+      [err] = file-mgr.perform user, id, parameters, configs, null, (err, results) ->
+        return REST_ERR req, res, err[0], err[1] if err?
+        return REST_DAT req, res, results
+      return REST_ERR req, res, err[0], err[1] if err?
+
+    a.post '/agents/:id/filemgr/downloadFile', authenticate, (req, res) ->
+      {query, params, user, body} = req
+      {retry, timeout, sha256} = query
+      {callback, uri, username, password, ua, dir} = body
+      {id} = params
+      uuid = yes
+      operation = \downloadFile
+      configs = {uuid}
+      parameters = {operation}
+      return REST_ERR req, res, \missing_field, "uri in HTTP BODY is not specified" unless uri?
+      return REST_ERR req, res, \missing_field, "uri in HTTP BODY is a string" unless \string is typeof uri
+      return REST_ERR req, res, \missing_field, "dir in HTTP BODY is not specified" unless dir?
+      return REST_ERR req, res, \missing_field, "dir in HTTP BODY is a string" unless \string is typeof dir
+      return REST_ERR req, res, \missing_field, "callback in HTTP BODY is not specified" unless callback?
+      return REST_ERR req, res, \missing_field, "callback in HTTP BODY is a string" unless \string is typeof callback
+      {protocol} = xs = url.parse callback
+      return REST_ERR req, res, \missing_field, "callback in HTTP BODY is invalid http or https URL" unless protocol in <[http: https:]>
+      {protocol} = xs = url.parse uri
+      return REST_ERR req, res, \missing_field, "uri in HTTP BODY is invalid http or https URL" unless protocol in <[http: https:]>
+      ua = false unless ua?
+      ua = false unless \boolean is typeof ua
+      retry = DEFAULT_DOWNLOAD_FILE_RETRIES unless retry?
+      retry = parseInt retry if \string is typeof retry
+      retry = DEFAULT_DOWNLOAD_FILE_RETRIES if retry === NaN
+      timeout = DEFAULT_DOWNLOAD_TIMEOUT unless timeout?
+      timeout = parseInt timeout if \string is typeof timeout
+      timeout = DEFAULT_DOWNLOAD_TIMEOUT if timeout === NaN
+      parameters <<< {uri, username, password, ua, dir}
+      configs['retry'] = retry
+      configs['sha256'] = sha256
+      prefix = "file-mgr/#{operation}/#{id}"
+      [err, request_id] = file-mgr.perform user, id, parameters, configs, callback, (err, result) ->
+        if err?
+          ERR "#{prefix}: failed to perform: #{JSON.stringify parameters} => #{err[0]} => #{err[1]} => #{JSON.stringify err[2]}" if err?
+          data = err[2]
+          code = 1
+        else
+          INFO "#{prefix}: result => #{JSON.stringify result}"
+          data = result
+          code = 0
+        uri = callback
+        method = \POST
+        task = data.request.id
+        id = data.agent
+        profile = data.profile
+        type = \file-mgr
+        qs = {profile, id, type, operation, task}
+        json = yes
+        percentage = 100
+        body = {percentage, code, data}
+        opts = {uri, method, qs, json, body}
+        INFO "#{prefix}: completed => #{JSON.stringify qs}, #{profile}"
+        (err, rsp, body) <- request opts
+        return ERR err, "#{prefix}: failed to notify completion to #{uri}" if err?
+        return ERR "#{prefix}: failed to notify completion to #{uri} because of non-200 response: #{rsp.statusCode}(#{rsp.statusMessage.red})" unless rsp.statusCode is 200
+        return INFO "#{prefix}: informed #{uri} with completion"
+      return REST_ERR req, res, err[0], err[1] if err?
+      return REST_DAT req, res, {request_id}
+
+    a.get '/agents/:id/filemgr/env', authenticate, (req, res) ->
+      {query, params, user} = req
+      {field} = query
+      {id} = params
+      uuid = yes
+      operation = \env
+      configs = {uuid}
+      parameters = {operation, field}
+      [err] = file-mgr.perform user, id, parameters, configs, null, (err, results) ->
+        return REST_ERR req, res, err[0], err[1] if err?
+        return REST_DAT req, res, results
+      return REST_ERR req, res, err[0], err[1] if err?
+
+
     toe = express!
     toe.use '/:id/sensor-web/v3', authenticate, (req, res, next) ->
       return REMOTE_HTTP_V1 req, res, req.params.id, "http://localhost:6020/api/v3#{req.path}"
@@ -127,6 +238,7 @@ module.exports = exports =
       command = "{{YAC_BIN_DIR}}/yac"
       options = {env, shell}
       return REMOTE_BASH_V1 req, res, id, \yac-apply-image, {command, args, options}, {}
+
 
     conf = express!
     conf.post '/', (req, res) ->
