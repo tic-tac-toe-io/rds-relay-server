@@ -7,7 +7,7 @@ PROTOCOL = require \../common/protocol
 {PROGRESS_EVENT_ACKED, HTTP_INTERRUPT_ERROR} = PROTOCOL.constants
 
 const DEFAULT_TIMEOUT = 180s
-const SERVICE_NAME = \http-service
+const SERVICE_NAME = \http-by-server
 
 const DEFAULT_CONFIGS =
   v1:
@@ -196,12 +196,12 @@ module.exports = exports =
 
 
 module.exports = exports =
-  name: \http-by-server
+  name: SERVICE_NAME
 
   attach: (name, environment, configs, helpers) ->
     app = @
     app[name] = new ServiceManager environment, configs, helpers, app
-    return <[web agent-manager]>
+    return <[agent-manager]>
 
   init: (p, done) ->
     app = @
