@@ -103,7 +103,44 @@ module.exports = exports =
       options = {env, shell}
       return REMOTE_BASH_V1 req, res, id, \default, {command, args, options}, {}
 
+    toe = express!
+    toe.use '/:id/sensor-web/v3', authenticate, (req, res, next) ->
+      return REMOTE_HTTP_V1 req, res, req.params.id, "http://localhost:6020/api/v3#{req.path}"
+
+    toe.use '/:id/sensor-web/v1', authenticate, (req, res, next) ->
+      return REMOTE_HTTP_V1 req, res, req.params.id, "http://localhost:6020/api/v1#{req.path}"
+
+    toe.use '/:id/toe-agent/v3', authenticate, (req, res, next) ->
+      return REMOTE_HTTP_V1 req, res, req.params.id, "http://localhost:6040/api/v3#{req.path}"
+
+    toe.post '/:id/yapps-scripts/v3/apply-image', authenticate, (req, res) ->
+      {query, params, body} = req
+      {id} = params
+      {argv} = query
+      argv = [] unless argv?
+      argv = [argv] unless Array.isArray argv
+      {image} = body
+      return REST_ERR req, res, \missing_field, "image in HTTP BODY is not specified" unless image?
+      env = {}
+      shell = no
+      args = ["apply_image", "{{PROFILE_MNT_DAT_DIR}}/images/#{image}.sqfs"] ++ argv
+      command = "{{YAC_BIN_DIR}}/yac"
+      options = {env, shell}
+      return REMOTE_BASH_V1 req, res, id, \yac-apply-image, {command, args, options}, {}
+
+    conf = express!
+    conf.post '/', (req, res) ->
+      {body, hostname, protocol} = req
+      host = req.get \host
+      INFO "#{req.originalUrl}: host => #{host}, req.ip => #{req.ip}"
+      INFO "#{req.originalUrl}: #{protocol.cyan}://#{hostname.yellow}"
+      INFO "#{req.originalUrl}: body => #{JSON.stringify body}"
+      url = "#{protocol}://#{host}"
+      return REST_DAT req, res, {url}
+
     web.use-api \a, a, 1
+    web.use-api \toe, toe, 1
+    web.use-api \config, conf, 1
     return done!
 
   fini: (p, done) ->
