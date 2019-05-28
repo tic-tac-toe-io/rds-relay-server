@@ -250,9 +250,14 @@ module.exports = exports =
       url = "#{protocol}://#{host}"
       return REST_DAT req, res, {url}
 
+
+    tty = express!
+    tty.get '/', (req, res) -> return res.render \dashboard
+
     web.use-api \a, a, 1
     web.use-api \toe, toe, 1
     web.use-api \config, conf, 1
+    web.use \tty, tty
     return done!
 
   fini: (p, done) ->
