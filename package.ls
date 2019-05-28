@@ -42,6 +42,7 @@ dependencies:
   \moment-timezone : \*
   \passport : \*
   \passport-http : \*
+  \xterm : \*
 
 devDependencies: {}
 

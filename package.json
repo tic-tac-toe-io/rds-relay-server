@@ -14,12 +14,11 @@
   "license": "MIT",
   "dependencies": {
     "@tic-tac-toe/yapps-server": "*",
+    "request": "*",
     "moment-timezone": "*",
     "passport": "*",
     "passport-http": "*",
-    "pug": "^2.0.3",
-    "request": "*",
-    "socketio-auth": "^0.1.1"
+    "xterm": "*"
   },
   "devDependencies": {},
   "optionalDependencies": {}

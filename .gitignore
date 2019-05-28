@@ -62,3 +62,7 @@ typings/
 
 # working directory
 /work
+
+# backup files
+*.bak
+
