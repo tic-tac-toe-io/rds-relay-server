@@ -1,9 +1,12 @@
 # Changelog
 
 ## [Unreleased]
+
+## [2.0.0] - 2019-06-06
 ### Changed
-- Migrate from `yapps` architecture (with browserify) to `yapps-server` architecture
+- Migrate from `yapps` architecture (with browserify) to `yapps-server` architecture (v0.1.7)
 - Change repository from https://github.com/tic-tac-toe-io/wstty-server to https://github.com/tic-tac-toe-io/rds-relay-server (treated as **WsttyServer2**)
+- Better source-code-map support in frontend javascript
 
 
 ## [1.0.4] - 2019-05-16

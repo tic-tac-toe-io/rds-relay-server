@@ -26,7 +26,7 @@ author:
 
 description: "WebSocket Relay Server for Remote Device Diagnosis"
 
-version: \0.1.0
+version: \x.x.x
 
 repository:
   type: \git
@@ -37,7 +37,7 @@ main: \index
 license: \MIT
 
 dependencies:
-  \@tic-tac-toe/yapps-server : \*
+  \@tic-tac-toe/yapps-server : \^0.1.7
   \request : \*
   \moment-timezone : \*
   \passport : \*
