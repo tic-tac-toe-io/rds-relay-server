@@ -66,3 +66,5 @@ typings/
 # backup files
 *.bak
 
+# nodenv local version file
+.node-version
