@@ -37,7 +37,7 @@ main: \index
 license: \MIT
 
 dependencies:
-  \@tic-tac-toe/yapps-server : \^0.1.7
+  \@tic-tac-toe/yapps-server : \^0.1.8
   \request : \*
   \moment-timezone : \*
   \passport : \*

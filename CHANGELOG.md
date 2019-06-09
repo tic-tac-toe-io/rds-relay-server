@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [2.0.1] - 2019-06-09
+### Fixed
+- Fix startup failure due to missing `livescript` module in the NODE_PATH that `yapps-server` can load
+
 ## [2.0.0] - 2019-06-06
 ### Changed
 - Migrate from `yapps` architecture (with browserify) to `yapps-server` architecture (v0.1.7)

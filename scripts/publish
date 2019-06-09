@@ -8,6 +8,10 @@ function update_version_from_changelog {
 	cat ${PACKAGE_JSON_LN} | lsc -cjp | jq ".version=\"${VERSION}\"" > ${PACKAGE_JSON}
 }
 
+function publish_to_local {
+	update_version_from_changelog
+}
+
 function publish_to_npm {
 	local NAME=$(cat ${PACKAGE_JSON} | jq -r ".name")
 	update_version_from_changelog && \
@@ -41,6 +45,9 @@ case "${TARGET}" in
 		publish_to_${TARGET} $@
 		;;
 	docker)
+		publish_to_${TARGET} $@
+		;;
+	local)
 		publish_to_${TARGET} $@
 		;;
 	*)
