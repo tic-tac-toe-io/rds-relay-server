@@ -18,7 +18,7 @@
 
 # package.json
 #
-name: \rds-relay-server
+name: \@tic-tac-toe/rds-relay-server
 
 author:
   name: \yagamy
