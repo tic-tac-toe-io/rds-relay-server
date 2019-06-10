@@ -4,7 +4,7 @@
 # https://tic-tac-toe.io
 # Taipei, Taiwan
 #
-require! <[express lodash request]>
+require! <[os express lodash request]>
 {DBG, ERR, WARN, INFO} = global.ys.services.get_module_logger __filename
 {AGENT_EVENT_COMMAND, AGENT_EVENT_REGISTER, AGENT_EVENT_REGISTER_ACKED} = (require \../common/protocol).events
 
@@ -364,14 +364,22 @@ class AgentManager
     ip = sw.ws.handshake.address
     ip = xri if xri?
     ip = xff if xff?
+    site = sw.ws.request.headers['host']
+    host = os.hostname!
+    instance = cc.instance_id
+    service = \rds-relay-server
+    qs = {site, host, instance, service}
+    method = \GET
     uri = "#{TIC_GEOIP_SERVER}/by-ip/#{ip}"
+    opts = {method, uri, qs}
+    INFO "requesting geolocation information for #{ip} with #{PRETTIZE_KVS qs}"
     geoip = {ip}
-    (err, rsp, body) <- request.get uri
+    (err, rsp, body) <- request opts
     if not err? and rsp.statusCode is 200
       json = JSON.parse body
       {data} = json
       geoip = {ip, data}
-      INFO "#{prefix}: geoip => #{PRETTIZE_KVS geoip}"
+      INFO "agents[#{sw.index.gray}] geoip => #{PRETTIZE_KVS geoip}"
     sm.at-connected system, cc, geoip
     socket_metadata_map[id] = sm
     socket_instance_map[id] = sw

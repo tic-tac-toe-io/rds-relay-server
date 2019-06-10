@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- Attach service metadata when requesting geolocation info
 
 ## [2.0.2] - 2019-06-10
 ### Changed
