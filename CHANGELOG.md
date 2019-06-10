@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [2.0.2] - 2019-06-10
+### Changed
+- Apply `yapps-server` v0.1.9
+
 ## [2.0.1] - 2019-06-09
 ### Fixed
 - Fix startup failure due to missing `livescript` module in the NODE_PATH that `yapps-server` can load, by workaround methodology
