@@ -37,8 +37,7 @@ main: \index
 license: \MIT
 
 dependencies:
-  livescript: \github:ischenkodv/LiveScript   # workaround to fix missing livescript issue
-  \@tic-tac-toe/yapps-server : \^0.1.8
+  \@tic-tac-toe/yapps-server : \^0.1.9
   \request : \*
   \moment-timezone : \*
   \passport : \*

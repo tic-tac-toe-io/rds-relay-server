@@ -13,8 +13,7 @@
   "main": "index",
   "license": "MIT",
   "dependencies": {
-    "livescript": "github:ischenkodv/LiveScript",
-    "@tic-tac-toe/yapps-server": "^0.1.8",
+    "@tic-tac-toe/yapps-server": "^0.1.9",
     "request": "*",
     "moment-timezone": "*",
     "passport": "*",
