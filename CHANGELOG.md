@@ -1,8 +1,10 @@
 # Changelog
 
 ## [Unreleased]
+## [2.0.3] - 2019-06-12
 ### Changed
 - Attach service metadata when requesting geolocation info
+- Breaking: use `yapps-server` v0.2.0 that support structural CLI commands
 
 ## [2.0.2] - 2019-06-10
 ### Changed

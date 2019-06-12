@@ -7,3 +7,35 @@ WebSocket Relay Server for Remote Device Diagnosis
 [wstty-server](https://github.com/tic-tac-toe-io/wstty-server) was originally developed for embedded linux environment (running on the IoT gateway to manage many other IoT devices in the same subnet), so its codes are heavily dependent on [yapps](https://github.com/yagamy4680/yapps) and produce single bundle js file for execution with [browserify](http://browserify.org/). However, [yapps](https://github.com/yagamy4680/yapps) does not support cluster, which will be an obvious limitation to wstty-server at larger scale deployment. So, in the roadmap of wstty-server, we are planning to rewrite it from scratch by considering cloud native environment and scability since v2.0.
 
 To align with v2.0 plan of wstty-server and our official service RDS (**Remote Diagnosis Service**) publish, we rename `wstty-server` to `rds-relay-server` and starts its first rollout version `v2.0.0`.
+
+
+## Docker
+### Basic Usages
+
+Running `rds-relay-server` with Docker for one-time is quite simple:
+
+```text
+$ docker run --rm -p 6030:6030 --name rds-relay-server tictactoe/rds-relay-server:latest
+```
+
+Or, maybe run `rds-relay-server` as a background daemon:
+
+```text
+$ docker run -d -p 6030:6030 --name rds-relay-server tictactoe/rds-relay-server:latest
+```
+
+
+### Advanced Usages
+
+The docker image supports to dump default YAML configuration, and run the daemon with the modified YAML configuration file. For example:
+
+```text
+$ docker run --rm tictactoe/rds-relay-server:latest config > YOUR_PATH/rds.yml
+$
+$ docker run \
+    -d \
+    -v YOUR_PATH/rds.yml:/tic/config/default.yml \
+    -p 6030:6030 \
+    --name rds-relay-server \
+    tictactoe/rds-relay-server:latest
+```

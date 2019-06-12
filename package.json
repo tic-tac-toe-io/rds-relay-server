@@ -5,7 +5,7 @@
     "email": "yagamy@t2t.io"
   },
   "description": "WebSocket Relay Server for Remote Device Diagnosis",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/tic-tac-toe-io/rds-relay-server"
@@ -13,7 +13,7 @@
   "main": "index",
   "license": "MIT",
   "dependencies": {
-    "@tic-tac-toe/yapps-server": "^0.1.9",
+    "@tic-tac-toe/yapps-server": "^0.2.0",
     "request": "*",
     "moment-timezone": "*",
     "passport": "*",
