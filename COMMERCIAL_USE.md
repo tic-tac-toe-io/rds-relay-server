@@ -12,6 +12,8 @@ RDS is battle proven for these scenarios.  It helps you to focus right on your s
 
 ## Pricing
 
+![rds tiers](RDS-tiers.png)
+
 RDS full feature service is **FREE** for you play around up to THREE "always on" terminal connections with T2T's [playaround site](https://rds.tic-tac-toe.io/).
 
 If you need more than that, there are 2 alternatives to consider.  
