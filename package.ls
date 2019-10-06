@@ -38,6 +38,7 @@ license: \MIT
 
 dependencies:
   \@tic-tac-toe/yapps-server : \^0.2.0
+  \livescript : \github:ischenkodv/LiveScript
   \request : \*
   \moment-timezone : \*
   \passport : \*

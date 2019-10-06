@@ -15,6 +15,7 @@
   "dependencies": {
     "@tic-tac-toe/yapps-server": "^0.2.0",
     "conventional-changelog-cli": "^2.0.23",
+    "livescript": "github:ischenkodv/LiveScript",
     "moment-timezone": "*",
     "passport": "*",
     "passport-http": "*",
