@@ -7,6 +7,11 @@ web:
   api: [3, 1]
   upload_storage: memory
   upload_path: "{{work_dir}}/web/upload/{{process_name}}"
+  socket_io:
+    pingTimeout: 5000ms
+    pingInterval: 25000ms
+    upgradeTimeout: 10000
+
 
 #
 # DO NOT USE any handlebars template variables (e.g. process_name) in logger
