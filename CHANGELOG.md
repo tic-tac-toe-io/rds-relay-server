@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/tic-tac-toe-io/rds-relay-server/compare/v2.0.5...v2.1.0) (2020-04-26)
+
+
+### Features
+
+* **yapps-server:** upgrade to 0.2.1 to use socket-io options from yml ([d49a10d](https://github.com/tic-tac-toe-io/rds-relay-server/commit/d49a10d6c17a50219100bc2e0b606ee86d4a0e3a))
+
 ### [2.0.5](https://github.com/tic-tac-toe-io/rds-relay-server/compare/v2.0.4...v2.0.5) (2019-10-06)
 
 
