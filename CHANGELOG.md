@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/tic-tac-toe-io/rds-relay-server/compare/v2.1.0...v2.2.0) (2020-04-26)
+
+
+### Features
+
+* **xterm:** upgrade from 3.14.2 to 4.5.0 ([569feeb](https://github.com/tic-tac-toe-io/rds-relay-server/commit/569feeb758fbc22e5b7ba3266f597ac5408639b3))
+
+
+### Bug Fixes
+
+* **npm:** lock mkdirp to 0.5.5 for backward compatibility, and use package.json as single source of package manifest to phase out package.ls ([0e1011b](https://github.com/tic-tac-toe-io/rds-relay-server/commit/0e1011b7fc51a90f2f0359b87dbe9f815c3343a2))
+
 ## [2.1.0](https://github.com/tic-tac-toe-io/rds-relay-server/compare/v2.0.5...v2.1.0) (2020-04-26)
 
 
