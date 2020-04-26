@@ -1,1 +1,1 @@
-../../../node_modules/xterm/dist/xterm.js
+../../../node_modules/xterm/lib/xterm.js

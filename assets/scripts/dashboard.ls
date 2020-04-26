@@ -291,7 +291,7 @@ class TerminalPanel
       console.log "websocket is connected"
       return s.emit \authentication, username: username, password: password
 
-    term.on \data, (data) -> s.emit \tty, data
+    term.onData (data) -> s.emit \tty, data
     term.focus!
     s.on \tty, (chunk) -> document.term.write chunk
 
@@ -316,7 +316,7 @@ class TerminalPanel
     s.on \disconnect, ->
       {delay-destroy, delay-ms} = self
       f = ->
-        document.term.destroy!
+        document.term.dispose!
         location.reload true
       if delay-destroy then setInterval f, delay-ms else f!
 
