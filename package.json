@@ -13,9 +13,9 @@
   "main": "index",
   "license": "MIT",
   "dependencies": {
-    "@tic-tac-toe/yapps-server": "^0.2.1",
+    "@tic-tac-toe/yapps-server": "^*",
     "conventional-changelog-cli": "^2.0.23",
-    "livescript": "github:ischenkodv/LiveScript",
+    "mkdirp": "0.5.5",
     "moment-timezone": "*",
     "passport": "*",
     "passport-http": "*",

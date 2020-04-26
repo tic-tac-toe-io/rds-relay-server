@@ -8,8 +8,8 @@ web:
   upload_storage: memory
   upload_path: "{{work_dir}}/web/upload/{{process_name}}"
   socket_io:
-    pingTimeout: 5000ms
-    pingInterval: 25000ms
+    pingTimeout: 5000
+    pingInterval: 25000
     upgradeTimeout: 10000
 
 
