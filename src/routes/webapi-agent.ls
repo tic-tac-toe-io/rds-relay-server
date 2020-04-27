@@ -9,6 +9,10 @@ require! <[lodash express passport]>
 {BasicStrategy} = require \passport-http
 {DBG, ERR, WARN, INFO} = global.ys.services.get_module_logger __filename
 
+
+const DEFAULT_DOWNLOAD_FILE_RETRIES = 30
+const DEFAULT_DOWNLOAD_TIMEOUT = 600
+
 const DEFAULT_SETTINGS =
   enabled: no
 
