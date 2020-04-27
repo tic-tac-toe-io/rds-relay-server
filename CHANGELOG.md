@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.2.1](https://github.com/tic-tac-toe-io/rds-relay-server/compare/v2.2.0...v2.2.1) (2020-04-27)
+
+
+### Bug Fixes
+
+* **api:** add missing constant declarations ([0fa2d8e](https://github.com/tic-tac-toe-io/rds-relay-server/commit/0fa2d8e50b242e6fe0a7c4c68a729588f6c19a35))
+* **package:** use rds-relay-server as public package name w/o organization, and clean up publish scripts ([9f51685](https://github.com/tic-tac-toe-io/rds-relay-server/commit/9f516859454ade12577e5390149dcdb61d528e87))
+
 ## [2.2.0](https://github.com/tic-tac-toe-io/rds-relay-server/compare/v2.1.0...v2.2.0) (2020-04-26)
 
 
