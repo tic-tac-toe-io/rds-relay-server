@@ -1,30 +1,21 @@
 #!/bin/bash
 #
 
-function update_version_from_changelog {
-	local PACKAGE_JSON_LN="${TOP_DIR}/package.ls"
-	export VERSION=$(cat ${TOP_DIR}/CHANGELOG.md | grep '^##\ ' | grep -v Unreleased | awk '{print $2}' | sed 's/\[//g' | sed 's/\]//g' | head -n1)
-	echo "generating ${PACKAGE_JSON} ..."
-	cat ${PACKAGE_JSON_LN} | lsc -cjp | jq ".version=\"${VERSION}\"" > ${PACKAGE_JSON}
-}
-
 function publish_to_local {
-	update_version_from_changelog
+	return 0
 }
 
 function publish_to_npm {
-	local NAME=$(cat ${PACKAGE_JSON} | jq -r ".name")
-	update_version_from_changelog && \
-		echo "unpublish ${NAME}@${VERSION} ..." && npm unpublish ${NAME}@${VERSION} && \
-		echo "waiting for 5 seconds ..." && sleep 5 && \
-		npm publish --scope public
+	npm publish --scope public
 }
 
 function publish_to_docker {
 	local ORGANIZATION="tictactoe"
+	local VERSION=$(cat ${PACKAGE_JSON} | jq -r .version)
 	local NAME=$(cat ${PACKAGE_JSON} | jq -r .name | tr '/' '\n' | grep -v "^@" | tail -n1)
-	update_version_from_changelog && \
-		docker build . && \
+	echo "name = ${NAME}"
+	echo "version = ${VERSION}"
+	docker build . && \
 		docker build -t ${ORGANIZATION}/${NAME}:${VERSION} . && \
 		docker build -t ${ORGANIZATION}/${NAME}:latest . && \
 		docker push ${ORGANIZATION}/${NAME}:${VERSION} && \
