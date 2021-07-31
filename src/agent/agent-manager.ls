@@ -4,7 +4,7 @@
 # https://tic-tac-toe.io
 # Taipei, Taiwan
 #
-require! <[os express lodash request]>
+require! <[fs os express lodash request]>
 {DBG, ERR, WARN, INFO} = global.ys.services.get_module_logger __filename
 {AGENT_EVENT_COMMAND, AGENT_EVENT_REGISTER, AGENT_EVENT_REGISTER_ACKED} = (require \../common/protocol).events
 
@@ -27,6 +27,14 @@ const AGENT_CONNECTION_INFO_DEFAULT =
 
 SUM = (a, b) -> return a + b
 
+GET_PACKAGE_JSON_FOR_MODULE = (m) ->
+  p = require.resolve m
+  return null unless p?
+  x = (require \resolve-package-path) m, p
+  return null unless x?
+  content = fs.readFileSync x
+  return null unless content?
+  return JSON.parse content.toString!
 
 class SocketWrapper
   (@ws, @index, @manager) ->
@@ -319,7 +327,8 @@ class AgentManager
     instance_id = environment.service_instance_id
     protocol_version = PROTOCOL_VERSION
     software_version = app_package_json.version
-    socketio_version = (require "socket.io/package.json").version
+    siop = GET_PACKAGE_JSON_FOR_MODULE 'socket.io'
+    socketio_version = if siop? then siop.version else '?.?.?'
     module.cc = self.cc = cc = {protocol_version, software_version, socketio_version, instance_id} # connection-context
     INFO "environment => #{PRETTIZE_KVS environment}"
     INFO "running with Protocol #{protocol_version.yellow} on #{instance_id.cyan} with socket.io #{socketio_version.red}"

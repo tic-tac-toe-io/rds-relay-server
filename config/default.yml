@@ -11,6 +11,7 @@ web:
     pingTimeout: 5000
     pingInterval: 25000
     upgradeTimeout: 10000
+    allowEIO3: yes
 
 
 #
