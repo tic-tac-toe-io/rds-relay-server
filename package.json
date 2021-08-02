@@ -13,17 +13,17 @@
   "main": "index",
   "license": "MIT",
   "dependencies": {
-    "@tic-tac-toe/yapps-server": "^*",
-    "conventional-changelog-cli": "^2.0.23",
-    "mkdirp": "0.5.5",
+    "@tic-tac-toe/yapps-server": "github:tic-tac-toe-io/yapps-server#dev-socketio4",
     "moment-timezone": "*",
     "passport": "*",
     "passport-http": "*",
     "request": "*",
+    "resolve-package-path": "^4.0.1",
     "xterm": "*"
   },
   "devDependencies": {
-    "standard-version": "^7.0.0"
+    "conventional-changelog-cli": "^2.0.23",
+    "standard-version": "^9.3.1"
   },
   "optionalDependencies": {}
 }

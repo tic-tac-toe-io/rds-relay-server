@@ -4,7 +4,7 @@
 # https://tic-tac-toe.io
 # Taipei, Taiwan
 #
-require! <[os express lodash request]>
+require! <[fs os express lodash request]>
 {DBG, ERR, WARN, INFO} = global.ys.services.get_module_logger __filename
 {AGENT_EVENT_COMMAND, AGENT_EVENT_REGISTER, AGENT_EVENT_REGISTER_ACKED} = (require \../common/protocol).events
 
@@ -27,6 +27,14 @@ const AGENT_CONNECTION_INFO_DEFAULT =
 
 SUM = (a, b) -> return a + b
 
+GET_PACKAGE_JSON_FOR_MODULE = (m) ->
+  p = require.resolve m
+  return null unless p?
+  x = (require \resolve-package-path) m, p
+  return null unless x?
+  content = fs.readFileSync x
+  return null unless content?
+  return JSON.parse content.toString!
 
 class SocketWrapper
   (@ws, @index, @manager) ->
@@ -81,14 +89,15 @@ class SocketWrapper
       mac = address unless mac?
     ipv4 = "unknown" unless ipv4?
     mac = "00:00:00:00:00:00" unless mac?
-    if interfaces? and Array.isArray interfaces and ipv4 is \unknown
-      xs = [ x for x in interfaces when x.ipv4_address? and x['interface'] isnt \lo ]
+    if interfaces? and (Array.isArray interfaces) and (ipv4 is \unknown)
+      xs = [ x for x in interfaces when x.mac isnt '' and x.ip4 isnt '' and x.ip4 isnt '127.0.0.1' ]
       if xs.length > 0
-        ipv4 = xs[0].ipv4_address
-        mac = xs[0].address
-        ipv4 = "unknown.x" unless ipv4?
-        mac = "FF:FF:FF:FF:FF:FF" unless mac?
-        INFO "agents[#{index}] interface #{xs[0]['interface']} is selected (ipv4: #{ipv4}, mac: #{mac})"
+        ys = [ y.ip4 for y in xs ]
+        ipv4 = ys.join ', '
+        zs = [ z.mac for z in xs ]
+        mac = zs.join ', '
+    INFO "final.ipv4 => #{ipv4}"
+    INFO "final.mac => #{mac}"
     self.cc = cc = lodash.merge {}, AGENT_CONNECTION_INFO_DEFAULT, data.cc, {ipv4, mac}
     self.id = id
     # [success, metadata, sw] = manager.register-agent self, data, cc
@@ -319,7 +328,8 @@ class AgentManager
     instance_id = environment.service_instance_id
     protocol_version = PROTOCOL_VERSION
     software_version = app_package_json.version
-    socketio_version = (require "socket.io/package.json").version
+    siop = GET_PACKAGE_JSON_FOR_MODULE 'socket.io'
+    socketio_version = if siop? then siop.version else '?.?.?'
     module.cc = self.cc = cc = {protocol_version, software_version, socketio_version, instance_id} # connection-context
     INFO "environment => #{PRETTIZE_KVS environment}"
     INFO "running with Protocol #{protocol_version.yellow} on #{instance_id.cyan} with socket.io #{socketio_version.red}"
