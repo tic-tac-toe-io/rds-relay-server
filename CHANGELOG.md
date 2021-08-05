@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/tic-tac-toe-io/rds-relay-server/compare/v2.2.1...v2.3.0) (2021-08-05)
+
+
+### Features
+
+* **system:** parse info network interfaces from systeminformation module, and generate comma-separated mac and ipv4 strings ([5759297](https://github.com/tic-tac-toe-io/rds-relay-server/commit/575929764e4c1a96f38828336bc4e985821568ea))
+* **view:** add new webview, and use http basic auth for access ([0b3045c](https://github.com/tic-tac-toe-io/rds-relay-server/commit/0b3045c1129483f4e59af9c048b25f2b60634307))
+
 ### [2.2.1](https://github.com/tic-tac-toe-io/rds-relay-server/compare/v2.2.0...v2.2.1) (2020-04-27)
 
 
