@@ -1,0 +1,67 @@
+html
+  head
+    meta(http-equiv="Content-Type" content="text/html; charset=utf-8")
+    meta(name="Keywords" content="")
+    meta(name="Description" content="")
+    meta(name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no")
+    title Terminal (matrix)
+    link(rel="stylesheet" href="/css/bootstrap.min.css")
+    link(rel="stylesheet" href="/css/bootstrap-theme.min.css")
+    link(rel="stylesheet" href="/css/xterm.css" crossorigin="anonymous")
+  body
+    .modal.fade#loginModal(tabindex="-1" role="dialog" aria-labelledby="login-modal-label")
+      .modal-dialog(role="document")
+        .modal-content
+          .modal-header
+            button.close(type="button" data-dismiss="modal" aria-label="Close")
+              span(aria-hidden="true")
+                | &times;
+            h4.modal-title#login-modal-label Login
+          .modal-body
+            form
+              .form-group
+                label.control-label(for="agent-id") id:
+                input.form-control#login-agent-id(type="text" readonly)
+              .form-group
+                label.control-label(for="user-name") username:
+                input.form-control#login-username(type="text" value=username)
+              .form-group
+                label.control-label(for="token") token:
+                input.form-control#login-token(placeholder="password", value=token)
+              .form-group
+                label.control-label(for="term-cols") cols:
+                input.form-control#login-term-cols(type="text" value="220")
+              .form-group
+                label.control-label(for="term-rows") rows:
+                input.form-control#login-term-rows(type="text" value="53")
+          .modal-footer
+            button.btn.btn-default(type="button" data-dismiss="modal") Close
+            button.btn.btn-primary#login-button(type="button") Login
+
+    #dashboard
+      .row
+        .col-lg-1
+        .col-lg-10
+          h2 Agents
+          p Welcome #{username}
+      .row
+        .col-lg-1
+        .col-lg-10
+          #agent-dashboard
+
+    #term-container
+      .row
+        .col-lg-1
+        .col-lg-10
+          h2#terminal-title
+      .row
+        .col-lg-1
+        .col-lg-11
+          #term
+
+    script(src="/js/jquery-2.1.4.min.js" defer="defer")
+    script(src="/js/bootstrap.min.js" defer="defer")
+    script(src="/js/humanize-duration.js" defer="defer")
+    script(src="/js/xterm.js" defer="defer")
+    script(src="/socket.io/socket.io.js")
+    script(src="/js/view1.js" defer="defer")

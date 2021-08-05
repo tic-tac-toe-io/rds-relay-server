@@ -5,7 +5,7 @@
 # Taipei, Taiwan
 #
 require! <[path url]>
-require! <[lodash express passport]>
+require! <[lodash express passport uuid]>
 {BasicStrategy} = require \passport-http
 {DBG, ERR, WARN, INFO} = global.ys.services.get_module_logger __filename
 
@@ -258,10 +258,19 @@ module.exports = exports =
     tty = express!
     tty.get '/', (req, res) -> return res.render \dashboard
 
+    view1 = express!
+    view1.get '/', authenticate, (req, res) -> 
+      {username, token} = req.user
+      token = token.id
+      parameters = {username, token}
+      INFO "parameters => #{JSON.stringify parameters}"
+      return res.render \view1, parameters
+
     web.use-api \a, a, 1
     web.use-api \toe, toe, 1
     web.use-api \config, conf, 1
     web.use \tty, tty
+    web.use \view1, view1
     return done!
 
   fini: (p, done) ->
