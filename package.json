@@ -13,7 +13,7 @@
   "main": "index",
   "license": "MIT",
   "dependencies": {
-    "@tic-tac-toe/yapps-server": "github:tic-tac-toe-io/yapps-server#dev-socketio4",
+    "@tic-tac-toe/yapps-server": "tic-tac-toe-io/yapps-server",
     "moment-timezone": "*",
     "passport": "^0.6.0",
     "passport-http": "*",
