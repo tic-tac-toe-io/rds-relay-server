@@ -68,3 +68,6 @@ typings/
 
 # nodenv local version file
 .node-version
+
+# OS specific
+.DS_Store
