@@ -13,17 +13,16 @@ class GeoLocation
     @time_zone_code = "GMT+0"
     return unless geodata?
     return unless geodata.data?
-    return unless geodata.data['ipstack.com']
     @ip = geodata.ip if geodata.ip?
-    x = geodata.data['ipstack.com']
-    @country_flag_emoji = x.location.country_flag_emoji if x.location.country_flag_emoji?
-    @region_name = x.region_name if x.region_name?
-    @country_name = x.country_name if x.country_name?
-    @continent_name = x.continent_name if x.continent_name?
-    @latitude = x.latitude if x.latitude?
-    @longitude = x.longitude if x.longitude?
-    @time_zone_id = x.time_zone.id if x.time_zone.id?
-    @time_zone_code = x.time_zone.code if x.time_zone.code?
+    maxmind = geodata.data
+    # @country_flag_emoji = x.location.country_flag_emoji if x.location.country_flag_emoji?
+    @region_name = maxmind.subdivisions[0].names.en if maxmind.subdivisions[0]?
+    @country_name = maxmind.country.names.en
+    @continent_name = maxmind.continent.names.en
+    @latitude = maxmind.location.latitude
+    @longitude = maxmind.location.longitude
+    @time_zone_id = maxmind.location.time_zone
+    # @time_zone_code = x.time_zone.code if x.time_zone.code?
 
 
 class AgentPanel
@@ -208,8 +207,9 @@ class ContextManager
       else
         ipv4 = "unknown"
         mac = "unknown"
-      console.log "uptime: #{uptime}, cc => #{JSON.stringify cc}"
-      console.log "system => #{JSON.stringify system}"
+      console.log "[#{id}] uptime: #{uptime}, cc => ", cc
+      console.log "[#{id}] system => ", system
+      console.log "[#{id}] geoip => ", geoip
       xs = {} <<< system
       xs.cc = cc
       xs.uid = i
