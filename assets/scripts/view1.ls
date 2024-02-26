@@ -17,7 +17,7 @@ class GeoLocation
     maxmind = geodata.data
     # @country_flag_emoji = x.location.country_flag_emoji if x.location.country_flag_emoji?
     console.log "#{id}.maxmind", maxmind
-    @region_name = maxmind.subdivisions[0].names.en if maxmind.subdivisions? and maxmind.subdivisions.length > 0
+    @region_name = maxmind.city.names.en
     @country_name = maxmind.country.names.en
     @continent_name = maxmind.continent.names.en
     @latitude = maxmind.location.latitude
