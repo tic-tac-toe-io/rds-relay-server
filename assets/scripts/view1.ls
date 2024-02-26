@@ -1,7 +1,7 @@
 # $ '.collapse' .collapse!
 
 class GeoLocation
-  (@geodata) ->
+  (@geodata, @id) ->
     @ip = \0.0.0.0
     @country_flag_emoji = ""
     @region_name = \Unknown
@@ -16,7 +16,8 @@ class GeoLocation
     @ip = geodata.ip if geodata.ip?
     maxmind = geodata.data
     # @country_flag_emoji = x.location.country_flag_emoji if x.location.country_flag_emoji?
-    @region_name = maxmind.subdivisions[0].names.en if maxmind.subdivisions[0]?
+    console.log "#{id}.maxmind", maxmind
+    @region_name = maxmind.subdivisions[0].names.en if maxmind.subdivisions? and maxmind.subdivisions.length > 0
     @country_name = maxmind.country.names.en
     @continent_name = maxmind.continent.names.en
     @latitude = maxmind.location.latitude
@@ -34,7 +35,7 @@ class AgentPanel
     {ipv4, mac, software_version, socketio_version, protocol_version} = cc
     {profile, profile_version, sn} = ttt
     {node_version, node_arch, node_platform}  = runtime
-    geo = new GeoLocation geoip
+    geo = new GeoLocation geoip, id
     # geolocation = geoip.data['ipstack.com']
     sio = ""
     sio = ", sio-#{socketio_version}" if socketio_version? and socketio_version isnt "unknown"
