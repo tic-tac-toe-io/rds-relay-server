@@ -362,7 +362,8 @@ class AgentManager
     return @socket_instance_map[id]
 
   register-agent: (sw, reg-data, cc, done) ->
-    {socket_metadata_map, socket_instance_map, app, sockets, helpers} = self = @
+    {socket_metadata_map, socket_instance_map, app, sockets, helpers, configs} = self = @
+    {endpoint, account_id, license_key} = configs.geolocation.maxmind
     {PRETTIZE_KVS} = helpers
     {id, system} = reg-data
     sm = socket_metadata_map[id]
@@ -380,16 +381,16 @@ class AgentManager
     service = \rds-relay-server
     qs = {site, host, instance, service}
     method = \GET
-    uri = "#{TIC_GEOIP_SERVER}/by-ip/#{ip}"
-    opts = {method, uri, qs}
+    auth = {user: account_id.toString!, pass: license_key, sendImmediately: yes}
+    uri = "#{endpoint}/#{ip}"
+    opts = {method, uri, auth}
     INFO "requesting geolocation information for #{ip} with #{PRETTIZE_KVS qs}"
     geoip = {ip}
     (err, rsp, body) <- request opts
-    if not err? and rsp.statusCode is 200
-      json = JSON.parse body
-      {data} = json
-      geoip = {ip, data}
-      INFO "agents[#{sw.index.gray}] geoip => #{PRETTIZE_KVS geoip}"
+    return ERR err if err?
+    return ERR "failed to get geolocation information for #{ip} with #{PRETTIZE_KVS opts} => status code: #{rsp.statusCode} => #{body}" unless rsp.statusCode is 200
+    data = JSON.parse body
+    geoip = {ip, data}
     sm.at-connected system, cc, geoip
     socket_metadata_map[id] = sm
     socket_instance_map[id] = sw
@@ -398,6 +399,7 @@ class AgentManager
     {profile, profile_version, ethernet_ip_addr} = system.ttt
     {ipv4, mac} = cc
     INFO "#{prefix} registered/geoip => #{ip.yellow}"
+    console.log geoip.data
     INFO "#{prefix} registered/meta => #{profile.green}/#{profile_version.magenta}/#{ipv4.red}/#{mac.gray}"
     INFO "#{prefix} registered/conn => #{(JSON.stringify cc).gray}"
     INFO "#{prefix} registered/system.iface => #{(JSON.stringify system.iface).gray}" if system.iface?
