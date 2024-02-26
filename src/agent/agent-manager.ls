@@ -400,6 +400,7 @@ class AgentManager
     {ipv4, mac} = cc
     INFO "#{prefix} registered/geoip => #{ip.yellow}"
     console.log geoip.data
+    INFO "#{prefix} registered/maxmind => #{geoip.data.maxmind.queries_remaining} queries remaining"
     INFO "#{prefix} registered/meta => #{profile.green}/#{profile_version.magenta}/#{ipv4.red}/#{mac.gray}"
     INFO "#{prefix} registered/conn => #{(JSON.stringify cc).gray}"
     INFO "#{prefix} registered/system.iface => #{(JSON.stringify system.iface).gray}" if system.iface?
