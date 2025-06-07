@@ -5,7 +5,6 @@
 # Taipei, Taiwan
 #
 require! <[fs express body-parser express-bunyan-logger multer mkdirp pug]>
-browserify-livescript-middleware = require \@tic-tac-toe/browserify-livescript-middleware
 sio = require \socket.io
 sioAuth = require \socketio-auth
 {services} = global.ys
@@ -167,20 +166,6 @@ class LocalWeb
     web.use x, express.static fullpath
     return INFO "serving #{x.yellow} with #{fullpath.blue}"
 
-  initiate-scripts: ->
-    {web, environment} = self = @
-    {app_dir, work_dir} = environment
-    src = "#{app_dir}/assets/scripts"
-    dst = "#{work_dir}/js"
-    try
-      s = fs.statSync src
-    catch
-      return INFO "missing #{src.yellow} for livescript to serve js"
-    return unless s? and s.isDirectory!
-    x = "/js"
-    web.use x, browserify-livescript-middleware {src, dst}
-    return INFO "serving #{x.yellow} with livescript middleware (src: #{src.blue}, dest: #{dst.blue}"
-
   serve: (done) ->
     {web, configs, environment} = self = @
     {app_dir} = environment
@@ -202,7 +187,6 @@ class LocalWeb
     self.initiate-static-resources \fonts, "#{app_dir}/assets/public/fonts"
     self.initiate-static-resources \css, "#{app_dir}/assets/public/css"
     self.initiate-static-resources \js, "#{app_dir}/assets/public/js"
-    self.initiate-scripts!
     self.initiate-views!
 
   fini: (done) ->

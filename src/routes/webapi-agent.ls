@@ -248,10 +248,12 @@ module.exports = exports =
     conf.post '/', (req, res) ->
       {body, hostname, protocol} = req
       host = req.get \host
-      INFO "#{req.originalUrl}: host => #{host}, req.ip => #{req.ip}"
+      console.log req.headers
+      INFO "#{req.originalUrl}: host => #{host}, req.ip => #{req.ip}, req.hostname => #{hostname}, protocol => #{protocol}"
       INFO "#{req.originalUrl}: #{protocol.cyan}://#{hostname.yellow}"
       INFO "#{req.originalUrl}: body => #{JSON.stringify body}"
       url = "#{protocol}://#{host}"
+      INFO "#{req.originalUrl}: response => #{url}"
       return REST_DAT req, res, {url}
 
 
