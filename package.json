@@ -38,8 +38,7 @@
     "rc": "*",
     "request": "*",
     "resolve-package-path": "^4.0.1",
-    "socket.io": "^4.5.1",
-    "socketio-auth": "^0.1.1",
+    "socket.io": "^4.8.1",
     "xterm": "*",
     "yargs": "^18.0.0"
   },

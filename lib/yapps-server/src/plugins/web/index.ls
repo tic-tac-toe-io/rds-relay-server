@@ -6,7 +6,7 @@
 #
 require! <[fs express body-parser express-bunyan-logger multer mkdirp pug]>
 sio = require \socket.io
-sioAuth = require \socketio-auth
+sioAuth = require \../../../../socketio-auth
 {services} = global.ys
 {DBG, ERR, WARN, INFO} = services.get_module_logger __filename
 {logger} = services.get_module_logger! # bunyan instance.
