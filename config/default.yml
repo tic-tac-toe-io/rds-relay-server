@@ -1,10 +1,9 @@
-
 #
 # Web (expressjs) settings.
 #
 web:
   port: 6030
-  api: [3, 1]
+  api: [ 3, 1 ]
   upload_storage: memory
   upload_path: "{{work_dir}}/web/upload/{{process_name}}"
   socket_io:
@@ -13,7 +12,6 @@ web:
     upgradeTimeout: 10000
     allowEIO3: yes
 
-
 #
 # DO NOT USE any handlebars template variables (e.g. process_name) in logger
 # section because they are never merged.
@@ -21,9 +19,8 @@ web:
 logger:
   rotating_file_stream:
     period: daily
-    threshold: 1g     # The maximum size for a log file to reach before it's rotated.
-    totalFiles: 60    # Keep 60 days (2 months) of log files.
-
+    threshold: 1g # The maximum size for a log file to reach before it's rotated.
+    totalFiles: 60 # Keep 60 days (2 months) of log files.
 
 #
 # Builtin Authentication
@@ -37,20 +34,22 @@ auth:
       sys1: token1
       sys2: token2
 
-
 #
 # Agent manager.
 #
 agent-manager:
   name: wstty.tic-tac-toe.io
-
+  geolocation:
+    maxmind:
+      endpoint: https://geoip.maxmind.com/geoip/v2.1/insights
+      account_id: 748311
+      license_key: AAA
 
 #
 # Channel: `tty`, socket.io namespace for connections from agents on the boards/workstations.
 #
 ws-tty:
   verbose: no
-
 
 #
 # Channel: `terminal`, socket.io namespace for connections from terminals in web browsers.
@@ -99,7 +98,6 @@ ws-terminal:
   #
   authentication: userdb://agent
 
-
 #
 # Channel: `system`, socket.io namespace for connections from 3rd-party cloud apps.
 #
@@ -147,17 +145,13 @@ ws-system:
   #
   authentication: userdb://system
 
-
-
 webapi-agent:
   enabled: true
   authentication: userdb://agent
 
-
 http-by-server:
   v1:
     timeout: 180 # seconds
-
 
 bash-by-server:
   v1:
@@ -171,7 +165,6 @@ bash-by-server:
         cwd: /tmp
         env: {}
         shell: true
-
 
 file-mgr:
   v1:
