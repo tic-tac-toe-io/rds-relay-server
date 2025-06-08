@@ -13,6 +13,7 @@
   "main": "index",
   "license": "MIT",
   "dependencies": {
+    "@xterm/xterm": "^5.5.0",
     "async": "^3.2.4",
     "body-parser": "^2.2.0",
     "colors": "^1.4.0",
@@ -23,8 +24,8 @@
     "js-yaml": "^4.1.0",
     "livescript": "gkz/LiveScript#1.6.1",
     "lodash": "*",
-    "minimist": "^1.2.6",
-    "mkdirp": "^0.5.5",
+    "minimist": "^1.2.8",
+    "mkdirp": "^3.0.1",
     "moment-timezone": "*",
     "multer": "^2.0.1",
     "passport": "^0.6.0",
@@ -37,7 +38,6 @@
     "request": "*",
     "resolve-package-path": "^4.0.1",
     "socket.io": "^4.8.1",
-    "xterm": "*",
     "yargs": "^18.0.0"
   },
   "devDependencies": {
