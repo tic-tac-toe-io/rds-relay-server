@@ -4,9 +4,9 @@
 # https://tic-tac-toe.io
 # Taipei, Taiwan
 #
-require! <[fs express body-parser express-bunyan-logger multer mkdirp pug]>
+require! <[fs express body-parser multer mkdirp pug]>
 sio = require \socket.io
-sioAuth = require \socketio-auth
+sioAuth = require \../../../../socketio-auth
 {services} = global.ys
 {DBG, ERR, WARN, INFO} = services.get_module_logger __filename
 {logger} = services.get_module_logger! # bunyan instance.
@@ -84,14 +84,15 @@ class LocalWeb
     v[name] = middleware
 
   init-logger: ->
-    immediate = no
-    format = ":remote-address :incoming :method :url HTTP/:http-version :status-code :res-headers[content-length] :referer :user-agent[family] :user-agent[major].:user-agent[minor] :user-agent[os] :response-time ms"
-    levelFn = (status, err) ->
-      return \debug if status in [200, 201] or 300 <= status < 400
-      return \info if 400 <= status < 500
-      return \error if status >= 500
-      return \warn
-    @web.use express-bunyan-logger {logger, immediate, format, levelFn}
+    return
+    # immediate = no
+    # format = ":remote-address :incoming :method :url HTTP/:http-version :status-code :res-headers[content-length] :referer :user-agent[family] :user-agent[major].:user-agent[minor] :user-agent[os] :response-time ms"
+    # levelFn = (status, err) ->
+    #   return \debug if status in [200, 201] or 300 <= status < 400
+    #   return \info if 400 <= status < 500
+    #   return \error if status >= 500
+    #   return \warn
+    # @web.use express-bunyan-logger {logger, immediate, format, levelFn}
 
   initiate-plugin-api-endpoints: ->
     {web, routes_api} = self = @
