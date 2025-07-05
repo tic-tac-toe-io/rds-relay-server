@@ -1,0 +1,1 @@
+../../scripts/view1.js
