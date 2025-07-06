@@ -4,7 +4,7 @@
   GeoLocation = (function () {
     GeoLocation.displayName = 'GeoLocation';
     var prototype = GeoLocation.prototype, constructor = GeoLocation;
-    function GeoLocation(geodata, id) {
+    function GeoLocation(geodata, id, data) {
       var maxmind;
       this.geodata = geodata;
       this.id = id;
@@ -16,7 +16,6 @@
       this.latitude = 0.0;
       this.longitude = 0.0;
       this.time_zone_id = "Unknown/Unknown";
-      this.time_zone_code = "GMT+0";
       if (geodata == null) {
         return;
       }
@@ -27,13 +26,14 @@
         this.ip = geodata.ip;
       }
       maxmind = geodata.data;
-      console.log(id + ".maxmind", maxmind);
-      this.region_name = maxmind.city.names.en;
+      console.log(id + ".maxmind", maxmind, data);
+      this.region_name = maxmind?.city?.names?.en;
       this.country_name = maxmind.country.names.en;
       this.continent_name = maxmind.continent.names.en;
       this.latitude = maxmind.location.latitude;
       this.longitude = maxmind.location.longitude;
       this.time_zone_id = maxmind.location.time_zone;
+      this.region_name ||= "<font color='red'>Unknown</font>";
     }
     return GeoLocation;
   }());
@@ -51,7 +51,7 @@
       ipv4 = cc.ipv4, mac = cc.mac, software_version = cc.software_version, socketio_version = cc.socketio_version, protocol_version = cc.protocol_version;
       profile = ttt.profile, profile_version = ttt.profile_version, sn = ttt.sn;
       node_version = runtime.node_version, node_arch = runtime.node_arch, node_platform = runtime.node_platform;
-      geo = new GeoLocation(geoip, id);
+      geo = new GeoLocation(geoip, id, this.data);
       sio = "";
       if (socketio_version != null && socketio_version !== "unknown") {
         sio = ", sio-" + socketio_version;
@@ -73,7 +73,28 @@
         sn = hostname;
       }
       collapseStyle = "collapse in";
-      return "<div class=\"panel panel-default\">\n  <div class=\"panel-heading\" role=\"tab\" id=\"" + hid + "\">\n    <h4 class=\"panel-title\">\n      <a role=\"button\" data-toggle=\"collapse\" data-parent=\"#" + pid + "\" href=\"#" + cid + "\" aria-expanded=\"true\" aria-controls=\"" + cid + "\">\n        " + id + " (" + sn + ")\n      </a>\n    </h4>\n  </div>\n  <div id=\"" + cid + "\" class=\"panel-collapse " + collapseStyle + "\" role=\"tabpanel\" aria-labelledby=\"" + hid + "\">\n    <div class=\"panel-body\">\n      <table class=\"table table-hover\">\n        <tbody>\n          <tr>\n            <td>\n              <p><button class=\"btn btn-info btn-xs\" id=\"agent_button_console_" + uid + "\">\n                <span class=\"glyphicon glyphicon-log-in\" aria-hidden=\"true\"></span>\n                Console\n              </button></p>\n              <p><button class=\"btn btn-warning btn-xs\" id=\"agent_button_reboot_" + uid + "\" disabled=\"disabled\">\n                <span class=\"glyphicon glyphicon-refresh\" aria-hidden=\"true\"></span>\n                Reboot\n              </button></p>\n            </td>\n            <td><small>\n              <p>hostname: <strong>" + hostname + "</strong></p>\n              <p>uptime: " + uptime + "</p>\n              <p>public: <strong>" + geo.ip + "</strong></p>\n              <p><strong>" + ipv4.split(',').join('<br>') + "</strong></p>\n            </small></td>\n            <td><small>\n              <p>" + node_platform + "-" + node_arch + "</p>\n              <p>" + geo.country_flag_emoji + " " + geo.region_name + ", " + geo.country_name + ", " + geo.continent_name + " (<a href=\"https://maps.google.com?z=14&ll=" + geo.latitude + "," + geo.longitude + "\">map</a>)</p>\n              <p>" + geo.time_zone_id + " (<strong>" + geo.time_zone_code + "</strong>)</p>\n              <p><strong>" + mac.split(',').join('<br>') + "</strong></p>\n            </small></td>\n            <td><small>\n              <p>app: <strong>" + software_version + "</strong></p>\n              <p>nodejs: <strong>" + node_version + "</strong></p>\n              <p>socket.io: <strong>" + socketio_version + "</strong></p>\n              <p>protocol: <strong>" + protocol_version + "</strong></p>\n            </small></td>\n          </tr>\n        </tbody>\n      </table>\n    </div>\n  </div>\n</div>";
+      return "<div class=\"panel panel-default\">\n  <div class=\"panel-heading\" role=\"tab\" id=\"" + hid
+        + "\">\n    <h4 class=\"panel-title\">\n      <a role=\"button\" data-toggle=\"collapse\" data-parent=\"#" + pid
+        + "\" href=\"#" + cid + "\" aria-expanded=\"true\" aria-controls=\"" + cid
+        + "\">\n        " + id + " (" + sn
+        + ")\n      </a>\n    </h4>\n  </div>\n  <div id=\"" + cid
+        + "\" class=\"panel-collapse " + collapseStyle
+        + "\" role=\"tabpanel\" aria-labelledby=\"" + hid
+        + "\">\n    <div class=\"panel-body\">\n      <table class=\"table table-hover\">\n        <tbody>\n          <tr>\n            <td>\n              <p><button class=\"btn btn-info btn-xs\" id=\"agent_button_console_" + uid
+        + "\">\n                <span class=\"glyphicon glyphicon-log-in\" aria-hidden=\"true\"></span>\n                Console\n              </button></p>\n              <p><button class=\"btn btn-warning btn-xs\" id=\"agent_button_reboot_" + uid
+        + "\" disabled=\"disabled\">\n                <span class=\"glyphicon glyphicon-refresh\" aria-hidden=\"true\"></span>\n                Reboot\n              </button></p>\n            </td>\n            <td><small>\n              <p>hostname: <strong>" + hostname
+        + "</strong></p>\n              <p>uptime: " + uptime
+        + "</p>\n              <p>public: <strong>" + geo.ip
+        + "</strong></p>\n              <p><strong>" + ipv4.split(',').join('<br>')
+        + "</strong></p>\n            </small></td>\n            <td><small>\n              <p>" + `${this.data.distro.name} (<font color='gray'>${this.data.distro.uname.release}</font>)`
+        + "</p>\n              <p>" + geo.country_flag_emoji + " " + geo.region_name + ", " + geo.country_name + ", " + geo.continent_name
+        + " (<a href=\"https://maps.google.com?z=14&ll=" + geo.latitude + "," + geo.longitude
+        + "\">map</a>)</p>\n              <p>" + geo.time_zone_id
+        + "</p>\n              <p><strong>" + mac.split(',').join('<br>')
+        + "</strong></p>\n            </small></td>\n            <td><small>\n              <p>app: <strong>" + software_version
+        + "</strong></p>\n              <p>nodejs: <strong>" + node_version + "</strong></p>\n              <p>socket.io: <strong>" + socketio_version
+        + "</strong></p>\n              <p>protocol: <strong>" + protocol_version
+        + "</strong></p>\n            </small></td>\n          </tr>\n        </tbody>\n      </table>\n    </div>\n  </div>\n</div>";
     };
     return AgentPanel;
   }());
