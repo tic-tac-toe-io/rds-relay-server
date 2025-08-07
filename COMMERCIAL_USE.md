@@ -27,4 +27,4 @@ Alternatively, T2T also provides full service at great rates for customers requi
 - Up to 10K terminals
 - Beyond
 
-Feel free to contact [rds@t2t.io](mailto:rds@t2t.io) for details.
+Feel free to contact [ultron@t2t.io](mailto:ultron@t2t.io) for details.
